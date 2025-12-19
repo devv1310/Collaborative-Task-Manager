@@ -35,3 +35,12 @@ initSocket(server1);
 server1.listen(5000, () => {
   console.log("Server running on port 5000");
 });
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://YOUR_FRONTEND_URL.vercel.app"
+    ],
+    credentials: true,
+  })
+);
