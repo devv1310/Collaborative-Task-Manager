@@ -4,6 +4,10 @@ import cookieParser from "cookie-parser";
 import * as http from "http";
 import { Server } from "socket.io";
 import authRoutes from "./routes/auth.routes";
+import taskRoutes from "./routes/task.routes";
+
+
+
 const app = express();
 const server = http.createServer(app);
 
@@ -19,8 +23,15 @@ app.get("/", (_: any, res: { send: (arg0: string) => void; }) => {
   res.send("API running");
 });
 
-server.listen(5000, () => {
-  console.log("Backend running on http://localhost:5000");
-});
-
 app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+
+
+import { initSocket } from "./socket/socket";
+
+const server1 = http.createServer(app);
+initSocket(server1);
+
+server1.listen(5000, () => {
+  console.log("Server running on port 5000");
+});

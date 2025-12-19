@@ -1,38 +1,81 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { socket } from "./socket/socket";
+import { useEffect, useState } from "react";
+import { QueryClient } from "@tanstack/react-query";
+import { AuthProvider } from "./store/auth.context";
 
-function App() {
-  const [count, setCount] = useState(0)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-        <h1 className="text-3xl font-bold text-blue-600">
-      Tailwind Working ✅
-    </h1>
-    </>
-  )
+interface User {
+  id: string;
+  name?: string;
+  email?: string;
 }
 
-export default App
+export function useUser() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Fetch current user from your backend or auth service
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  return user;
+}
+
+function App() {
+  const user = useUser();
+
+  useEffect(() => {
+    if (user?.id) {
+      socket.emit("join", user.id);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    socket.on("taskCreated", () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    });
+
+    socket.on("taskUpdated", () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    });
+
+    socket.on("taskAssigned", (data) => {
+      alert(data.message);
+    });
+
+    return () => {
+      socket.off("taskCreated");
+      socket.off("taskUpdated");
+      socket.off("taskAssigned");
+    };
+  }, []);
+
+  return (
+    <AuthProvider>
+      {/* routes come later */}
+      <div className="p-4">Collaborative Task Manager</div>
+    </AuthProvider>
+  );
+}
+
+export default App;
