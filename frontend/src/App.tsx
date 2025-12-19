@@ -1,81 +1,33 @@
-import { socket } from "./socket/socket";
-import { useEffect, useState } from "react";
-import { QueryClient } from "@tanstack/react-query";
-import { AuthProvider } from "./store/auth.context";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./store/auth.context";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import type { JSX } from "react/jsx-dev-runtime";
+import Test from "./pages/Test";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-interface User {
-  id: string;
-  name?: string;
-  email?: string;
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
 }
 
-export function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    // Fetch current user from your backend or auth service
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  return user;
-}
-
-function App() {
-  const user = useUser();
-
-  useEffect(() => {
-    if (user?.id) {
-      socket.emit("join", user.id);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    socket.on("taskCreated", () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    });
-
-    socket.on("taskUpdated", () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    });
-
-    socket.on("taskAssigned", (data) => {
-      alert(data.message);
-    });
-
-    return () => {
-      socket.off("taskCreated");
-      socket.off("taskUpdated");
-      socket.off("taskAssigned");
-    };
-  }, []);
-
+export default function App() {
   return (
     <AuthProvider>
-      {/* routes come later */}
-      <div className="p-4">Collaborative Task Manager</div>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/test" element={<Test />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </AuthProvider>
   );
 }
-
-export default App;

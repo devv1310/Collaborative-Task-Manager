@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { authService } from "../services/auth.service";
 import { RegisterDto, LoginDto } from "../dto/auth.dto";
+import { userRepository } from "../repositories/user.repository";
+import { AuthRequest } from "../middlewares/auth.middleware";
+
 
 export const authController = {
   async register(req: Request, res: Response) {
@@ -29,4 +32,8 @@ export const authController = {
       res.status(401).json({ error: error.message });
     }
   },
+  async me(req: AuthRequest, res: Response) {
+  const user = await userRepository.findById(req.user!.id);
+  res.json(user);
+}
 };

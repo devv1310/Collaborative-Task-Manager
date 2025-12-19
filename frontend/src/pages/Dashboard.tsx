@@ -104,6 +104,14 @@ export default function Dashboard() {
       <Section title="Assigned to Me" tasks={assignedToMe} />
       <Section title="Created by Me" tasks={createdByMe} />
       <Section title="Overdue Tasks" tasks={overdue} />
+
+
+      <div className="p-4">
+      <h1 className="text-2xl font-bold">
+        Welcome {user?.name || "User"} 🎉
+      </h1>
+      <p>Dashboard Loaded Successfully</p>
+    </div>
     </div>
   );
 }
