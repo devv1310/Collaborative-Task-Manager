@@ -39,7 +39,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://YOUR_FRONTEND_URL.vercel.app"
+      "collaborative-task-manager-zlvz-pondnpgky.vercel.app"
     ],
     credentials: true,
   })
