@@ -1,5 +1,8 @@
 import { api } from "./axios";
 
+
+
+
 export const registerUser = async (data: {
   name: string;
   email: string;
@@ -9,15 +12,19 @@ export const registerUser = async (data: {
   return res.data;
 };
 
-export const loginUser = async (data: {
-  email: string;
-  password: string;
-}) => {
+export const loginUser = async (data: any) => {
   const res = await api.post("/auth/login", data);
+  localStorage.setItem("token", res.data.token); // 🔥 REQUIRED
   return res.data;
 };
 
 export const getMe = async () => {
-  const res = await api.get("/auth/me");
-  return res.data;
+  try {
+    const res = await api.get("/auth/me");
+    return res.data;
+  } catch (err) {
+    return null; // 🔥 VERY IMPORTANT
+  }
 };
+
+

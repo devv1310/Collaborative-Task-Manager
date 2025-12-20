@@ -1,6 +1,14 @@
+
 import axios from "axios";
 
 export const api = axios.create({
   baseURL: "https://collaborative-task-manager-6721.onrender.com/",
-  withCredentials: true, // VERY IMPORTANT (JWT cookies)
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });

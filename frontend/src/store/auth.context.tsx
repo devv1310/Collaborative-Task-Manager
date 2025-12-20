@@ -7,25 +7,23 @@ interface User {
   email: string;
 }
 
-const AuthContext = createContext<{
-  user: User | null;
-  setUser: (u: User | null) => void;
-}>({
-  user: null,
-  setUser: () => {},
-});
+const AuthContext = createContext<any>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMe()
-      .then(setUser)
-      .catch(() => setUser(null));
+    const init = async () => {
+      const me = await getMe();
+      setUser(me);
+      setLoading(false); // 🔥 NEVER MISS THIS
+    };
+    init();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
