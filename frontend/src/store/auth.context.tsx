@@ -1,35 +1,41 @@
+// src/store/auth.context.tsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { getMe } from "../api/auth.api";
 
 interface User {
   id: string;
-  name: string;
+  name: string;  
   email: string;
 }
 
-const AuthContext = createContext<{
+interface AuthContextType {
   user: User | null;
   setUser: (u: User | null) => void;
-}>({
-  user: null,
-  setUser: () => {},
-});
+  loading: boolean;
+}
 
-export const AuthProvider = ({ children }: any) => {
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMe()
-      .then(setUser)
-      .catch(() => setUser(null));
+    // Example: check if user is stored in localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+
+    setLoading(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+}

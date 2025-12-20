@@ -24,15 +24,12 @@ export default function Login() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      const res = await loginUser(data);
-      setUser(res.user);
-      navigate("/"); // ✅ redirect after login
-    } catch (err) {
-      alert("Invalid email or password");
-    }
-  };
+ const onSubmit = async (data: any) => {
+  const res = await loginUser(data);
+  setUser(res.user);
+  localStorage.setItem("user", JSON.stringify(res.user));
+  navigate("/");
+};
 
   return (
     <form
