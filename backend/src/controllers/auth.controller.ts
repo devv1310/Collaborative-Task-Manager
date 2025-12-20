@@ -21,10 +21,10 @@ export const authController = {
       const data = LoginDto.parse(req.body);
       const { user, token } = await authService.login(data);
 
-      res.cookie("token", token, {
+          res.cookie("token", token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
       });
 
       res.json({ message: "Login successful", user });

@@ -14,10 +14,10 @@ export const taskController = {
     }
   },
 
-//   async getAll(_: AuthRequest, res: Response) {
-//     const tasks = await taskService.getAllTasks();
-//     res.json(tasks);
-//   },
+  async getAll(_: AuthRequest, res: Response) {
+    const tasks = await taskService.getAllTasks();
+    res.json(tasks);
+  },
 
   async update(req: AuthRequest, res: Response) {
     try {

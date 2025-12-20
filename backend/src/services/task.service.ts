@@ -1,6 +1,6 @@
-import { getIO } from "../socket/socket";
+// src/services/task.service.ts
 import { taskRepository } from "../repositories/task.repository";
-
+import { getIO } from "../socket/socket";
 
 export const taskService = {
   async createTask(userId: string, data: any) {
@@ -9,7 +9,7 @@ export const taskService = {
       creatorId: userId,
       dueDate: new Date(data.dueDate),
     });
-    
+
     const io = getIO();
     io.emit("taskCreated", task);
 
@@ -20,17 +20,11 @@ export const taskService = {
 
     return task;
   },
-  async deleteTask(taskId: string, userId: string): Promise<void> {
+
+  async deleteTask(taskId: string, userId: string) {
     const task = await taskRepository.findById(taskId);
-
-    if (!task) {
-      throw new Error("Task not found");
-    }
-
-    if (task.creatorId !== userId) {
-      throw new Error("Unauthorized: only task creator can delete");
-    }
-
+    if (!task) throw new Error("Task not found");
+    if (task.creatorId !== userId) throw new Error("Only creator can delete task");
     await taskRepository.delete(taskId);
   },
 
@@ -39,7 +33,7 @@ export const taskService = {
     if (!task) throw new Error("Task not found");
 
     const updatedTask = await taskRepository.update(taskId, data);
-    
+
     const io = getIO();
     io.emit("taskUpdated", updatedTask);
 
@@ -51,5 +45,10 @@ export const taskService = {
     }
 
     return updatedTask;
+  },
+
+  // ✅ Add this method
+  async getAllTasks() {
+    return taskRepository.findAll(); // make sure your repository has findAll()
   },
 };

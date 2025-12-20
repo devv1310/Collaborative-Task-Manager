@@ -1,4 +1,5 @@
-import prisma from "../utils/prisma";
+import { prisma } from "../utils/prisma"; // ✅ named import
+
 
 export const taskRepository = {
   create: (data: any) => prisma.task.create({ data }),
